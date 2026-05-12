@@ -29,8 +29,8 @@ public record Board(List<List<Space>> spaces) {
                 .anyMatch(s -> nonNull(s.getActual()) && !s.getActual().equals(s.getExpected()));
     }
 
-    public boolean changeValue(final int col, final int row, final int value) {
-        var space = spaces.get(col).get(row);
+    public boolean changeValue(final int row, final int col, final int value) {
+        var space = spaces.get(row).get(col);
         if (space.isFixed()) {
             return false;
         }
@@ -39,8 +39,8 @@ public record Board(List<List<Space>> spaces) {
         return true;
     }
 
-    public boolean clearValue(final int col, final int row) {
-        var space = spaces.get(col).get(row);
+    public boolean clearValue(final int row, final int col) {
+        var space = spaces.get(row).get(col);
         if (space.isFixed()) {
             return false;
         }

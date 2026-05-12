@@ -4,6 +4,9 @@ import org.sudokugame.model.Board;
 import org.sudokugame.model.Space;
 import org.sudokugame.util.BoardTemplate;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,13 +23,17 @@ public class ConsoleMain {
     private static Board board;
     private final static int BOARD_LIMIT = 9;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        var filePath = Path.of("board.txt");
 
-        final var positions = Stream.of(args)
+        final var positions = Files.readAllLines(filePath)
+                .stream()
+                .filter(line -> !line.isBlank())
                 .collect(Collectors.toMap(
                         k -> k.split(";")[0],
                         v -> v.split(";")[1]
                 ));
+
         var option = -1;
         while (true) {
             System.out.println("Selecione uma das opções a seguir:");
@@ -100,14 +107,14 @@ public class ConsoleMain {
             return;
         }
 
-        System.out.println("Informe a coluna que em que o número será inserido");
-        var col = runUntilGetValidNumber(0,8);
-        System.out.println("Informe a coluna que em que o número será inserido");
-        var row = runUntilGetValidNumber(0,8);
-        System.out.printf("Informe o número que vai entrar na posição [%s,%s]\n",col,row);
-        var value = runUntilGetValidNumber(1,9);
-        if (!board.changeValue(col,row,value)){
-            System.out.printf("A posição [%s,%s] tem um valor fixo\n",col,row);
+        System.out.println("Informe a linha em que o número será inserido");
+        var row = runUntilGetValidNumber(0, 8);
+        System.out.println("Informe a coluna em que o número será inserido");
+        var col = runUntilGetValidNumber(0, 8);
+        System.out.printf("Informe o número que vai entrar na posição [%s,%s]\n", row, col);
+        var value = runUntilGetValidNumber(1, 9);
+        if (!board.changeValue(row, col, value)) {
+            System.out.printf("A posição [%s,%s] tem um valor fixo\n", row, col);
         }
     }
 
@@ -117,13 +124,14 @@ public class ConsoleMain {
             return;
         }
 
-        System.out.println("Informe a coluna que em que o número será inserido");
-        var col = runUntilGetValidNumber(0,8);
-        System.out.println("Informe a linha que em que o número será inserido");
-        var row = runUntilGetValidNumber(0,8);
-        System.out.printf("Informe o número que vai entrar na posição [%s,%s]\n",col,row);
-        if (!board.clearValue(col,row)){
-            System.out.printf("A posição [%s,%s] tem um valor fixo\n",col,row);
+        System.out.println("Informe a linha em que o número será removido");
+        var row = runUntilGetValidNumber(0, 8);
+        System.out.println("Informe a coluna em que o número será removido");
+        var col = runUntilGetValidNumber(0, 8);
+        if (!board.clearValue(row, col)) {
+            System.out.printf("A posição [%s,%s] tem um valor fixo\n", row, col);
+        } else {
+            System.out.printf("O número foi removido da posição [%s,%s]\n", row, col);
         }
     }
 
@@ -136,8 +144,8 @@ public class ConsoleMain {
         var args = new Object[81];
         var argsPos = 0;
         for (int i = 0; i < BOARD_LIMIT; i++) {
-            for (var col: board.spaces()){
-                args[argsPos++]= " " + (isNull(col.get(i).getActual()) ? " " : col.get(i).getActual());
+            for (int j = 0; j < BOARD_LIMIT; j++) {
+                args[argsPos++] = " " + (isNull(board.spaces().get(i).get(j).getActual()) ? " " : board.spaces().get(i).get(j).getActual());
             }
         }
         System.out.println("Seu jogo se encontra da seguinte forma");
